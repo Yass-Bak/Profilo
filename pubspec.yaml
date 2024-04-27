@@ -33,6 +33,7 @@ dependencies:
   datetime_picker_formfield: ^2.0.0
   intl: ^0.17.0
   wc_form_validators: ^1.0.1
+  flutter_translate: ^4.0.3
 
 dev_dependencies:
   flutter_test:
