@@ -25,7 +25,7 @@ class CanadianResumePdf {
       boldItalic: Font.ttf(await rootBundle.load("fonts/OpenSans-BoldItalic.ttf")),
     );
     final MemoryImage image = MemoryImage(
-      (await rootBundle.load('img/profile_picture.png')).buffer.asUint8List(),
+      (await rootBundle.load('img/undraw_Pic_profile_re_7g2h.png')).buffer.asUint8List(),
     );
 
     // Create a new PDF document with the loaded theme
