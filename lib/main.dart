@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'Pages/CreationForm.dart';  // Assuming CanadianResumeForm is correctly exported here.
+import 'package:flutter_translate/flutter_translate.dart';
 
+import 'Pages/SplashScreen.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,10 +26,14 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Profilio',
+      routes: {
+        "/": (context) => SplashScreen(),
+        "/CanadianResumeForm": (context) => CanadianResumeForm(toggleTheme: toggleTheme),
+      },
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home: CanadianResumeForm(toggleTheme: toggleTheme),
+
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_translate/flutter_translate.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
@@ -95,6 +96,8 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
 
   @override
   Widget build(BuildContext context) {
+    double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: Text('Profilo'),
@@ -104,6 +107,7 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
         ],
       ),
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -306,4 +310,6 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
       ),
     );
   }
+
+
 }
