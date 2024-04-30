@@ -1,12 +1,16 @@
+import 'dart:developer';
 import 'dart:io';
-import 'dart:math';
+import 'package:intl/intl.dart';
+
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart';
 import '../PdfGenerator/GenerateCv.dart'; // Ensure the path matches your project structure
 import 'package:wc_form_validators/wc_form_validators.dart';
 class CanadianResumeForm extends StatefulWidget {
@@ -20,7 +24,7 @@ class CanadianResumeForm extends StatefulWidget {
 
 class _CanadianResumeFormState extends State<CanadianResumeForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  File? image;
   String fullName = '';
   String address = '';
   String phoneNumber = '';
@@ -72,6 +76,7 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
           workExperience,
           education,
           skills,
+            image
         );
 
        CanadianResumePdf.openFile(pdfFile);
@@ -154,6 +159,13 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
                 activeTrackColor: Colors.yellowAccent,
                 inactiveThumbColor: Colors.grey,
                 inactiveTrackColor: Colors.grey.shade400,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ProfileImage(context),
+              const SizedBox(
+                height: 20,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Full Name'),
@@ -407,16 +419,7 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
               SizedBox(height: 20),
               Center(
                   child:ElevatedButton(
-                onPressed:() async{
-                  _submitForm;
-                  positionController.clear();
-                  companyController.clear();
-                  startDateController.clear();
-                  endDateController.clear();
-                  descriptionController.clear();
-                  educationController.clear();
-                  skillController.clear();
-                  },
+                onPressed: _submitForm,
                 child: Text('Generate Resume'),
               )),
             ],
@@ -426,5 +429,132 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
     );
   }
 
+  Future pickImage(BuildContext context, ImageSource source) async {
+    try {
+      final image = await ImagePicker()
+          .pickImage(source: source)
+          .then((value) => setState(() => this.image = File(value!.path)));
+      Navigator.pop(context);
+    } on PlatformException catch (e) {
+      print('faild to pick image ya looo :$e');
+    }
+  }
 
+  Future<File> saveImage(String imagePath) async {
+    final Directory = await getApplicationDocumentsDirectory();
+    final name = basename(imagePath);
+    image = File('${Directory.path}/$name');
+    return File(imagePath).copy(imagePath);
+  }
+
+  Widget ProfileImage(BuildContext context) {
+    log("************image****************" );
+    log(image.toString());
+    return Center(
+      child: Stack(
+        children: <Widget>[
+          InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                  context: this.context,
+                  builder: ((builder) => bottomSheet(context)));
+            },
+            child: CircleAvatar(
+              radius: 53,
+              backgroundImage: image == null
+                  ? const AssetImage('img/undraw_Pic_profile_re_7g2h.png')
+                  : FileImage(image!) as ImageProvider,
+            ),
+          ),
+          Positioned(
+              bottom: -1.0,
+              right: 1.0,
+              child: InkWell(
+                onTap: () {
+                  showModalBottomSheet(
+                      context: this.context,
+                      builder: ((builder) => bottomSheet(context)));
+                },
+                child: Icon(
+                  Icons.camera,
+                  color: Colors.black38,
+                  size: 35.0,
+                ),
+              ))
+        ],
+      ),
+    );
+  }
+
+  Widget bottomSheet(BuildContext context) {
+    return Container(
+      height: 100,
+      width: MediaQuery.of(this.context).size.width,
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        children: <Widget>[
+          const Text("Choose profile photo",
+              style: TextStyle(fontSize: 20)),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ElevatedButton.icon(
+                  style: ButtonStyle(
+                      backgroundColor:
+                      MaterialStateProperty.resolveWith((states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return  Colors.blueAccent;
+                        }
+                        return  Colors.blueAccent;
+                      }),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)))),
+                  onPressed: () {
+                    pickImage(context, ImageSource.camera);
+                  },
+                  icon: Icon(
+                    Icons.camera,
+                    color:  Colors.white,
+                  ),
+                  label: Text(
+                    "Camera",
+                    style: TextStyle(color:  Colors.white),
+                  )),
+              const SizedBox(
+                height: 10,
+                width: 10,
+              ),
+              ElevatedButton.icon(
+                  style: ButtonStyle(
+                      backgroundColor:
+                      MaterialStateProperty.resolveWith((states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return  Colors.blueAccent;
+                        }
+                        return  Colors.blueAccent;
+                      }),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30)))),
+                  onPressed: () {
+                    pickImage(context, ImageSource.gallery);
+                  },
+                  icon: Icon(
+                    Icons.image,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    "Gallerie",
+                    style: TextStyle(color:  Colors.white),
+                  ))
+            ],
+          )
+        ],
+      ),
+    );
+  }
 }
