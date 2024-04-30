@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +29,27 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
   List<Map<String, String>> workExperience = [];
   List<String> education = [];
   List<String> skills = [];
+  GoogleMapController? mapController;
+  Set<Marker> markers = {};
 
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+  }
+
+  void _addMarker() {
+    final marker = Marker(
+      markerId: MarkerId("id-1"),
+      position: LatLng(45.4215, -75.6972), // Example position
+      infoWindow: InfoWindow(
+        title: 'Marker',
+        snippet: 'A new marker',
+      ),
+    );
+
+    setState(() {
+      markers.add(marker);
+    });
+  }
   TextEditingController positionController = TextEditingController();
   TextEditingController companyController = TextEditingController();
   TextEditingController startDateController = TextEditingController();
@@ -93,16 +114,23 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
       skillController.clear();
     });
   }
+  bool _isMapVisible = false;  // State variable to control visibility of the map
+
+  void _toggleMapVisibility() {
+    setState(() {
+      _isMapVisible = !_isMapVisible;  // Toggle the map visibility
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: Text('Profilo'),
         actions: [
-
 
         ],
       ),
@@ -299,11 +327,98 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
               ),
 
               SizedBox(height: 20),
-
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Generate Resume'),
+              Text('Want to see Localisation of the top 50 IT Companies In Canada',textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              /*ElevatedButton(
+                onPressed: _toggleMapVisibility,
+                child: Text(_isMapVisible ? 'Hide Map' : 'Show Map'),  // Text changes based on map visibility
+              ),*/
+              Center(
+                child: ElevatedButton(
+                  onPressed: _toggleMapVisibility,
+                  child: Text(_isMapVisible ? 'Hide Map' : 'Show Map'),
+                ),
               ),
+
+              // Conditionally display the map
+              if (_isMapVisible)
+                Container(
+                  height: 300,  // Set the map height
+                  child: GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(43.6476246, -79.3954849),
+                      zoom: 10.0,
+                    ),
+                     markers:
+                     {
+                              Marker(
+                              markerId: MarkerId(
+                              'Shopify'),
+                              infoWindow: InfoWindow(title: 'Shopify'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(43.6476246,-79.3954849),
+                              ),
+                              Marker(
+                              markerId: MarkerId('Top Hat'),
+                              infoWindow: InfoWindow(title: 'Top Hat'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(43.6700798,-79.3892593),
+                              ),
+                              Marker(
+                              markerId: MarkerId('Kira Systems'),
+                              infoWindow: InfoWindow(title: 'Kira Systems'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(43.6485557,-79.3892822),
+                              ),
+                              Marker(
+                              markerId: MarkerId('Ritual Technologies'),
+                              infoWindow: InfoWindow(title: 'Ritual Technologies'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(43.6525269,-79.3819428),
+                              ),
+                              Marker(
+                              markerId: MarkerId('A3Logics'),
+                              infoWindow: InfoWindow(title: 'A3Logics'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(26.9124336,75.7872709 ),
+                              ),
+                              Marker(
+                              markerId: MarkerId('Datarockets'),
+                              infoWindow: InfoWindow(title: '750 Lexington Ave #12-125, New York City'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(40.7580277,-73.9855547),
+                              ),
+                              Marker(
+                              markerId: MarkerId('Datarockets'),
+                              infoWindow: InfoWindow(title: '80 Queens Wharf Rd #1015, Toronto'),
+                              icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                              position: LatLng(43.6629295,-79.3957348),
+                              )
+                     },
+                  ),
+                ),
+              SizedBox(height: 20),
+              Center(
+                  child:ElevatedButton(
+                onPressed:() async{
+                  _submitForm;
+                  positionController.clear();
+                  companyController.clear();
+                  startDateController.clear();
+                  endDateController.clear();
+                  descriptionController.clear();
+                  educationController.clear();
+                  skillController.clear();
+                  },
+                child: Text('Generate Resume'),
+              )),
             ],
           ),
         ),

@@ -34,6 +34,8 @@ dependencies:
   intl: ^0.17.0
   wc_form_validators: ^1.0.1
   flutter_translate: ^4.0.3
+  persistent_bottom_nav_bar_v2: ^5.2.3
+  google_maps_flutter: ^2.6.1
 
 dev_dependencies:
   flutter_test:

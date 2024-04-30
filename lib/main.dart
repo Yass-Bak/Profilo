@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Pages/CreationForm.dart';  // Assuming CanadianResumeForm is correctly exported here.
+import 'Pages/CreationForm.dart';
+import 'Pages/Map.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
 import 'Pages/SplashScreen.dart';
@@ -29,6 +30,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         "/": (context) => SplashScreen(),
         "/CanadianResumeForm": (context) => CanadianResumeForm(toggleTheme: toggleTheme),
+        "/map": (context) => Map(),
       },
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
