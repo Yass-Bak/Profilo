@@ -25,11 +25,11 @@ class CanadianResumeForm extends StatefulWidget {
 class _CanadianResumeFormState extends State<CanadianResumeForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   File? image;
-  String fullName = '';
-  String address = '';
-  String phoneNumber = '';
-  String email = '';
-  String profileSummary = '';
+  String fullName = ''.trim();
+  String address = ''.trim();
+  String phoneNumber = ''.trim();
+  String email = ''.trim();
+  String profileSummary = ''.trim();
   List<Map<String, String>> workExperience = [];
   List<String> education = [];
   List<String> skills = [];
