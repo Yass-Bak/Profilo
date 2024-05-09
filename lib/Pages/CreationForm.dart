@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:animated_sidebar/animated_sidebar.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:intl/intl.dart';
 
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -11,6 +13,9 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
+import 'package:sidebar_bigeagle/sidebar_bigeagle.dart';
+import 'package:sidebarx/sidebarx.dart';
+import 'package:tuanis_sidebar/tuanis_sidebar.dart';
 import '../PdfGenerator/GenerateCv.dart'; // Ensure the path matches your project structure
 import 'package:wc_form_validators/wc_form_validators.dart';
 class CanadianResumeForm extends StatefulWidget {
@@ -33,27 +38,7 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
   List<Map<String, String>> workExperience = [];
   List<String> education = [];
   List<String> skills = [];
-  GoogleMapController? mapController;
-  Set<Marker> markers = {};
 
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-  }
-
-  void _addMarker() {
-    final marker = Marker(
-      markerId: MarkerId("id-1"),
-      position: LatLng(45.4215, -75.6972), // Example position
-      infoWindow: InfoWindow(
-        title: 'Marker',
-        snippet: 'A new marker',
-      ),
-    );
-
-    setState(() {
-      markers.add(marker);
-    });
-  }
   TextEditingController positionController = TextEditingController();
   TextEditingController companyController = TextEditingController();
   TextEditingController startDateController = TextEditingController();
@@ -119,133 +104,158 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
       skillController.clear();
     });
   }
-  bool _isMapVisible = false;  // State variable to control visibility of the map
 
-  void _toggleMapVisibility() {
-    setState(() {
-      _isMapVisible = !_isMapVisible;  // Toggle the map visibility
-    });
-  }
+  final _advancedDrawerController = AdvancedDrawerController();
 
   @override
   Widget build(BuildContext context) {
 
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profilo'),
-        actions: [
-
-        ],
+    return  AdvancedDrawer(
+      backdrop: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.blueGrey, Colors.blueGrey.withOpacity(0.2)],
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SwitchListTile(
-                title: Text('Theme'),
-                secondary: Icon(
-                  Theme.of(context).brightness == Brightness.dark ? Icons.dark_mode : Icons.light_mode,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.yellow : Colors.grey,
-                ),
-                value: Theme.of(context).brightness == Brightness.dark,
-                onChanged: widget.toggleTheme,
-                activeColor: Colors.yellow,
-                activeTrackColor: Colors.yellowAccent,
-                inactiveThumbColor: Colors.grey,
-                inactiveTrackColor: Colors.grey.shade400,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ProfileImage(context),
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Full Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  fullName = value ?? '';
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Address'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your address';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  address = value ?? '';
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Phone Number'),
-                maxLength: 8,
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  phoneNumber = value ?? '';
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: Validators.compose([
-                  Validators.email('Please enter valid email'),
-                  Validators.required('Please enter your email')
-                ]),
-                autocorrect: false,
+      controller: _advancedDrawerController,
+      animationCurve: Curves.easeInOut,
+      animationDuration: const Duration(milliseconds: 300),
+      animateChildDecoration: true,
+      rtlOpening: false,
+      // openScale: 1.0,
+      disabledGestures: false,
+      childDecoration: const BoxDecoration(
+        // NOTICE: Uncomment if you want to add shadow behind the page.
+        // Keep in mind that it may cause animation jerks.
+        // boxShadow: <BoxShadow>[
+        //   BoxShadow(
+        //     color: Colors.black12,
+        //     blurRadius: 0.0,
+        //   ),
+        // ],
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+      ),
+      child:Scaffold(
+        appBar: AppBar(
+          title: Text('Profilo'),
+          actions: [
 
-                onSaved: (value) {
-                  email = value ?? '';
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Profile Summary'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a profile summary';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  profileSummary = value ?? '';
-                },
-              ),
-              // Other input fields for work experience, education, and skills...
-              SizedBox(height: 20),
-              Text('Work Experience', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextFormField(
-                controller: positionController,
-                decoration: InputDecoration(labelText: 'Position'),
-              ),
-              TextFormField(
-                controller: companyController,
-                decoration: InputDecoration(labelText: 'Company'),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: DateTimeField(
-                      format: DateFormat("yyyy-MM-dd"),
-                    /*  validator: (selectedDateTime) {
+          ],
+        ),
+        body: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  title: Text('Theme'),
+                  secondary: Icon(
+                    Theme.of(context).brightness == Brightness.dark ? Icons.dark_mode : Icons.light_mode,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.yellow : Colors.grey,
+                  ),
+                  value: Theme.of(context).brightness == Brightness.dark,
+                  onChanged: widget.toggleTheme,
+                  activeColor: Colors.yellow,
+                  activeTrackColor: Colors.yellowAccent,
+                  inactiveThumbColor: Colors.grey,
+                  inactiveTrackColor: Colors.grey.shade400,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                ProfileImage(context),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Full Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your full name';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    fullName = value ?? '';
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Address'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your address';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    address = value ?? '';
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Phone Number'),
+                  maxLength: 8,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your phone number';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    phoneNumber = value ?? '';
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: Validators.compose([
+                    Validators.email('Please enter valid email'),
+                    Validators.required('Please enter your email')
+                  ]),
+                  autocorrect: false,
+
+                  onSaved: (value) {
+                    email = value ?? '';
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Profile Summary'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a profile summary';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) {
+                    profileSummary = value ?? '';
+                  },
+                ),
+                // Other input fields for work experience, education, and skills...
+                SizedBox(height: 20),
+                Text('Work Experience', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                TextFormField(
+                  controller: positionController,
+                  decoration: InputDecoration(labelText: 'Position'),
+                ),
+                TextFormField(
+                  controller: companyController,
+                  decoration: InputDecoration(labelText: 'Company'),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DateTimeField(
+                        format: DateFormat("yyyy-MM-dd"),
+                        /*  validator: (selectedDateTime) {
                         if (selectedDateTime == null) {
                           return ('Please select a start date.');
                         } else {
@@ -271,158 +281,142 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
                           }
                         }
                       },*/
-                      controller: startDateController,
-                      decoration: InputDecoration(labelText: 'Start Date'),
-                      onShowPicker: (context, currentValue) async {
-                        final date = await showDatePicker(
-                          context: context,
-                          firstDate: DateTime(1900),
-                          initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
-                        return date;
-                      },
+                        controller: startDateController,
+                        decoration: InputDecoration(labelText: 'Start Date'),
+                        onShowPicker: (context, currentValue) async {
+                          final date = await showDatePicker(
+                            context: context,
+                            firstDate: DateTime(1900),
+                            initialDate: currentValue ?? DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+                          return date;
+                        },
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: DateTimeField(
-                      format: DateFormat("yyyy-MM-dd"),
-                      controller: endDateController,
-                      decoration: InputDecoration(labelText: 'End Date'),
-                      onShowPicker: (context, currentValue) async {
-                        final date = await showDatePicker(
-                          context: context,
-                          firstDate: DateTime(1900),
-                          initialDate: currentValue ?? DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
-                        return date;
-                      },
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: DateTimeField(
+                        format: DateFormat("yyyy-MM-dd"),
+                        controller: endDateController,
+                        decoration: InputDecoration(labelText: 'End Date'),
+                        onShowPicker: (context, currentValue) async {
+                          final date = await showDatePicker(
+                            context: context,
+                            firstDate: DateTime(1900),
+                            initialDate: currentValue ?? DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+                          return date;
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              )
-,
-              TextFormField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: null,
-              ),
-              ElevatedButton(
-                onPressed: _addWorkExperience,
-                child: Text('Press to add Work Experience'),
-              ),
-
-              // Education section
-              SizedBox(height: 20),
-              Text('Education', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextFormField(
-                controller: educationController,
-                decoration: InputDecoration(labelText: 'Education'),
-              ),
-              ElevatedButton(
-                onPressed: _addEducation,
-                child: Text('Press to add Education'),
-              ),
-
-              // Skills section
-              SizedBox(height: 20),
-              Text('Skills', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextFormField(
-                controller: skillController,
-                decoration: InputDecoration(labelText: 'Skill'),
-              ),
-              ElevatedButton(
-                onPressed: _addSkill,
-                child: Text('Press to add skills'),
-              ),
-
-              SizedBox(height: 20),
-              Text('Want to see Localisation of the top 50 IT Companies In Canada',textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-              /*ElevatedButton(
-                onPressed: _toggleMapVisibility,
-                child: Text(_isMapVisible ? 'Hide Map' : 'Show Map'),  // Text changes based on map visibility
-              ),*/
-              Center(
-                child: ElevatedButton(
-                  onPressed: _toggleMapVisibility,
-                  child: Text(_isMapVisible ? 'Hide Map' : 'Show Map'),
+                  ],
+                )
+                ,
+                TextFormField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Description'),
+                  maxLines: null,
                 ),
-              ),
+                ElevatedButton(
+                  onPressed: _addWorkExperience,
+                  child: Text('Press to add Work Experience'),
+                ),
 
-              // Conditionally display the map
-              if (_isMapVisible)
+                // Education section
+                SizedBox(height: 20),
+                Text('Education', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                TextFormField(
+                  controller: educationController,
+                  decoration: InputDecoration(labelText: 'Education'),
+                ),
+                ElevatedButton(
+                  onPressed: _addEducation,
+                  child: Text('Press to add Education'),
+                ),
+
+                // Skills section
+                SizedBox(height: 20),
+                Text('Skills', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                TextFormField(
+                  controller: skillController,
+                  decoration: InputDecoration(labelText: 'Skill'),
+                ),
+                ElevatedButton(
+                  onPressed: _addSkill,
+                  child: Text('Press to add skills'),
+                ),
+                SizedBox(height: 20),
+                Center(
+                    child:ElevatedButton(
+                      onPressed: _submitForm,
+                      child: Text('Generate Resume'),
+                    )),
+              ],
+            ),
+          ),
+        ),
+      ),
+      drawer: SafeArea(
+        child: Container(
+          child: ListTileTheme(
+            textColor: Colors.white,
+            iconColor: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
                 Container(
-                  height: 300,  // Set the map height
-                  child: GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(43.6476246, -79.3954849),
-                      zoom: 10.0,
-                    ),
-                     markers:
-                     {
-                              Marker(
-                              markerId: MarkerId(
-                              'Shopify'),
-                              infoWindow: InfoWindow(title: 'Shopify'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(43.6476246,-79.3954849),
-                              ),
-                              Marker(
-                              markerId: MarkerId('Top Hat'),
-                              infoWindow: InfoWindow(title: 'Top Hat'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(43.6700798,-79.3892593),
-                              ),
-                              Marker(
-                              markerId: MarkerId('Kira Systems'),
-                              infoWindow: InfoWindow(title: 'Kira Systems'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(43.6485557,-79.3892822),
-                              ),
-                              Marker(
-                              markerId: MarkerId('Ritual Technologies'),
-                              infoWindow: InfoWindow(title: 'Ritual Technologies'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(43.6525269,-79.3819428),
-                              ),
-                              Marker(
-                              markerId: MarkerId('A3Logics'),
-                              infoWindow: InfoWindow(title: 'A3Logics'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(26.9124336,75.7872709 ),
-                              ),
-                              Marker(
-                              markerId: MarkerId('Datarockets'),
-                              infoWindow: InfoWindow(title: '750 Lexington Ave #12-125, New York City'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(40.7580277,-73.9855547),
-                              ),
-                              Marker(
-                              markerId: MarkerId('Datarockets'),
-                              infoWindow: InfoWindow(title: '80 Queens Wharf Rd #1015, Toronto'),
-                              icon: BitmapDescriptor.defaultMarkerWithHue(
-                              BitmapDescriptor.hueAzure),
-                              position: LatLng(43.6629295,-79.3957348),
-                              )
-                     },
+                  width: 128.0,
+                  height: 128.0,
+                  margin: const EdgeInsets.only(
+                    top: 24.0,
+                    bottom: 64.0,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    shape: BoxShape.rectangle,
+                  ),
+                  child:  Image.asset(
+                    'img/Profilo.png',
+                    width: w*0.8,
+                    height: h*0.5,
+                    fit: BoxFit.fill,
                   ),
                 ),
-              SizedBox(height: 20),
-              Center(
-                  child:ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Generate Resume'),
-              )),
-            ],
+                ListTile(
+                  onTap: () {},
+                  leading: Icon(Icons.home),
+                  title: Text('Home'),
+                ),
+                ListTile(
+                  onTap: () {Navigator.of(context).popAndPushNamed
+                      ('/CanadianResumeForm');},
+                  leading: Icon(Icons.receipt_sharp),
+                  title: Text('Resume'),
+                ),
+                ListTile(
+                  onTap: () {Navigator.of(context)
+                      .pushNamed('/map');},
+                  leading: Icon(Icons.location_on),
+                  title: Text('Locate IT Firms'),
+                ),
+                Spacer(),
+                DefaultTextStyle(
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white54,
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                    ),
+                    child: Text('Terms of Service | Privacy Policy'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -557,4 +551,10 @@ class _CanadianResumeFormState extends State<CanadianResumeForm> {
       ),
     );
   }
+  void _handleMenuButtonPressed() {
+    // NOTICE: Manage Advanced Drawer state through the Controller.
+    // _advancedDrawerController.value = AdvancedDrawerValue.visible();
+    _advancedDrawerController.showDrawer();
+  }
+
 }
